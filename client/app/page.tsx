@@ -1,101 +1,163 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from 'react';
+import {
+  Box,
+  Input,
+  SimpleGrid,
+  Card,
+  CardBody,
+  Text,
+  Stack,
+  Select,
+  Button,
+  useColorMode,
+  Flex,
+  Heading,
+  Collapse,
+} from '@chakra-ui/react';
+import { FaSun, FaMoon, FaFilter } from "react-icons/fa";
+
+interface Skin {
+  id: number;
+  name: string;
+  price: number;
+  float: number;
+  category: string;
+  imageUrl: string;
+}
+
+const mockSkins: Skin[] = [
+  { id: 1, name: 'Skin A', price: 10, float: 0.5, category: 'Category 1', imageUrl: 'https://pt.egamersworld.com/_next/image?url=https%3A%2F%2Fimg.egamersworld.com%2Fweapons%2Fm4a4-spider-lily%2F560e3af51bf46aacceb2b3cbc08bfaa4.png&w=3840&q=75' },
+  { id: 2, name: 'Skin B', price: 20, float: 0.3, category: 'Category 2', imageUrl: 'https://pt.egamersworld.com/_next/image?url=https%3A%2F%2Fimg.egamersworld.com%2Fweapons%2Fm4a4-spider-lily%2F560e3af51bf46aacceb2b3cbc08bfaa4.png&w=3840&q=75' },
+  { id: 3, name: 'Skin C', price: 15, float: 0.7, category: 'Category 1', imageUrl: 'https://pt.egamersworld.com/_next/image?url=https%3A%2F%2Fimg.egamersworld.com%2Fweapons%2Fm4a4-spider-lily%2F560e3af51bf46aacceb2b3cbc08bfaa4.png&w=3840&q=75' },
+  { id: 4, name: 'Skin D', price: 5, float: 0.2, category: 'Category 2', imageUrl: 'https://pt.egamersworld.com/_next/image?url=https%3A%2F%2Fimg.egamersworld.com%2Fweapons%2Fm4a4-spider-lily%2F560e3af51bf46aacceb2b3cbc08bfaa4.png&w=3840&q=75' },
+];
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { colorMode, toggleColorMode } = useColorMode();
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [floatFilter, setFloatFilter] = useState<string>('');
+  const [priceFilter, setPriceFilter] = useState<string>('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('');
+  const [sortOrder, setSortOrder] = useState<string>('');
+  const [filteredSkins, setFilteredSkins] = useState<Skin[]>(mockSkins);
+  const [showFilters, setShowFilters] = useState<boolean>(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  useEffect(() => {
+    let filtered = mockSkins.filter((skin) => {
+      return (
+        skin.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
+        (floatFilter ? skin.float <= parseFloat(floatFilter) : true) &&
+        (priceFilter ? skin.price <= parseFloat(priceFilter) : true) &&
+        (categoryFilter ? skin.category === categoryFilter : true)
+      );
+    });
+
+    // Ordenação
+    if (sortOrder === 'price') {
+      filtered.sort((a, b) => a.price - b.price);
+    } else if (sortOrder === 'float') {
+      filtered.sort((a, b) => a.float - b.float);
+    }
+
+    setFilteredSkins(filtered);
+  }, [searchTerm, floatFilter, priceFilter, categoryFilter, sortOrder]);
+
+  return (
+    <Box p={5}>
+      <Flex justifyContent="space-between" alignItems="center" mb={4}>
+        <Heading as="h2" size="lg" textAlign="center">
+          Lista de Skins
+        </Heading>
+        <Button 
+          onClick={toggleColorMode} 
+          display="flex" 
+          alignItems="center" 
+          justifyContent="center" 
+          width="50px" 
+          height="50px"
+          variant="outline" 
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          {colorMode === 'light' ? <FaMoon /> : <FaSun />}
+        </Button>
+      </Flex>
+      <Flex mb={4}>
+        <Input
+          placeholder="Buscar skins pelo nome"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          mr={2}
+        />
+        <Button onClick={() => setShowFilters(!showFilters)} leftIcon={<FaFilter />}>
+          Filtros
+        </Button>
+      </Flex>
+      <Collapse in={showFilters}>
+        <Select
+          placeholder="Filtrar por float"
+          onChange={(e) => setFloatFilter(e.target.value)}
+          mb={4}
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          <option value="0.1">0.1</option>
+          <option value="0.5">0.5</option>
+          <option value="1.0">1.0</option>
+        </Select>
+        <Select
+          placeholder="Filtrar por preço"
+          onChange={(e) => setPriceFilter(e.target.value)}
+          mb={4}
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </Select>
+        <Select
+          placeholder="Filtrar por categoria"
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          mb={4}
+        >
+          <option value="Category 1">Category 1</option>
+          <option value="Category 2">Category 2</option>
+        </Select>
+        <Select
+          placeholder="Ordenar por"
+          onChange={(e) => setSortOrder(e.target.value)}
+          mb={4}
+        >
+          <option value="price">Preço</option>
+          <option value="float">Float</option>
+        </Select>
+      </Collapse>
+
+      <SimpleGrid columns={[1, 2, 3]} spacing={5}>
+        {filteredSkins.map((skin) => (
+          <Card key={skin.id} height="300px">
+            <Stack height="100%">
+              <Box 
+                p={4} 
+                display="flex" 
+                flexDirection="column" 
+                justifyContent="center" 
+                bg="rgba(0, 0, 0, 0.6)"
+                borderRadius="md"
+              >
+                <Text fontSize="xl" color="white">{skin.name}</Text>
+                <Text color="white">Preço: ${skin.price}</Text>
+                <Text color="white">Float: {skin.float}</Text>
+                <Text color="white">Categoria: {skin.category}</Text>
+              </Box>
+              <Box 
+                bgImage={`url('${skin.imageUrl}')`} 
+                bgSize="cover" 
+                bgPosition="center" 
+                height="200px"
+                borderRadius="md"
+              />
+            </Stack>
+          </Card>
+        ))}
+      </SimpleGrid>
+    </Box>
   );
 }
