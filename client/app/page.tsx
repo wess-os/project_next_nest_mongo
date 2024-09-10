@@ -1,12 +1,11 @@
 "use client";
-
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Box,
   Input,
   SimpleGrid,
   Card,
-  CardBody,
   Text,
   Stack,
   Select,
@@ -27,13 +26,6 @@ interface Skin {
   imageUrl: string;
 }
 
-const mockSkins: Skin[] = [
-  { id: 1, name: 'Skin A', price: 10, float: 0.5, category: 'Category 1', imageUrl: 'https://pt.egamersworld.com/_next/image?url=https%3A%2F%2Fimg.egamersworld.com%2Fweapons%2Fm4a4-spider-lily%2F560e3af51bf46aacceb2b3cbc08bfaa4.png&w=3840&q=75' },
-  { id: 2, name: 'Skin B', price: 20, float: 0.3, category: 'Category 2', imageUrl: 'https://pt.egamersworld.com/_next/image?url=https%3A%2F%2Fimg.egamersworld.com%2Fweapons%2Fm4a4-spider-lily%2F560e3af51bf46aacceb2b3cbc08bfaa4.png&w=3840&q=75' },
-  { id: 3, name: 'Skin C', price: 15, float: 0.7, category: 'Category 1', imageUrl: 'https://pt.egamersworld.com/_next/image?url=https%3A%2F%2Fimg.egamersworld.com%2Fweapons%2Fm4a4-spider-lily%2F560e3af51bf46aacceb2b3cbc08bfaa4.png&w=3840&q=75' },
-  { id: 4, name: 'Skin D', price: 5, float: 0.2, category: 'Category 2', imageUrl: 'https://pt.egamersworld.com/_next/image?url=https%3A%2F%2Fimg.egamersworld.com%2Fweapons%2Fm4a4-spider-lily%2F560e3af51bf46aacceb2b3cbc08bfaa4.png&w=3840&q=75' },
-];
-
 export default function Home() {
   const { colorMode, toggleColorMode } = useColorMode();
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -41,11 +33,24 @@ export default function Home() {
   const [priceFilter, setPriceFilter] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [sortOrder, setSortOrder] = useState<string>('');
-  const [filteredSkins, setFilteredSkins] = useState<Skin[]>(mockSkins);
+  const [filteredSkins, setFilteredSkins] = useState<Skin[]>([]);
   const [showFilters, setShowFilters] = useState<boolean>(false);
 
+  const fetchSkins = async () => {
+    try {
+      const response = await axios.get('http://localhost:4000/skin');
+      setFilteredSkins(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar skins:', error);
+    }
+  };
+
   useEffect(() => {
-    let filtered = mockSkins.filter((skin) => {
+    fetchSkins();
+  }, []);
+
+  useEffect(() => {
+    let filtered = filteredSkins.filter((skin) => {
       return (
         skin.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
         (floatFilter ? skin.float <= parseFloat(floatFilter) : true) &&
@@ -68,7 +73,7 @@ export default function Home() {
     <Box p={5}>
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
         <Heading as="h2" size="lg" textAlign="center">
-          Lista de Skins
+          CSkinStore
         </Heading>
         <Button 
           onClick={toggleColorMode} 
@@ -130,7 +135,7 @@ export default function Home() {
         </Select>
       </Collapse>
 
-      <SimpleGrid columns={[1, 2, 3]} spacing={5}>
+      <SimpleGrid columns={[1, 2, 3, 4]} spacing={5}>
         {filteredSkins.map((skin) => (
           <Card key={skin.id} height="300px">
             <Stack height="100%">
