@@ -32,6 +32,7 @@ export const useSkinStore = () => {
     const [modalFloat, setModalFloat] = useState<number>(0);
     const [modalCategory, setModalCategory] = useState<string>('');
     const [loading, setLoading] = useState(true);
+    const [errorMessage, setErrorMessage] = useState<string>('');
 
     // Function to search skins
     const fetchSkins = async () => {
@@ -46,6 +47,7 @@ export const useSkinStore = () => {
             setLoading(false);
         } catch (error) {
             console.error('Erro ao buscar skins:', error);
+            setErrorMessage('Erro ao buscar skins. Tente novamente mais tarde.');
         }
     };
 
@@ -61,6 +63,7 @@ export const useSkinStore = () => {
             setLoading(false);
         } catch (error) {
             console.error('Erro ao criar skin:', error);
+            setErrorMessage('Erro ao criar skin. Verifique os dados e tente novamente.');
         }
     };
 
@@ -73,6 +76,7 @@ export const useSkinStore = () => {
             setLoading(false);
         } catch (error) {
             console.error('Erro ao atualizar skin:', error);
+            setErrorMessage('Erro ao atualizar skin. Tente novamente.');
         }
     };
 
@@ -85,6 +89,7 @@ export const useSkinStore = () => {
             setLoading(false);
         } catch (error) {
             console.error('Erro ao deletar skin:', error);
+            setErrorMessage('Erro ao deletar skin. Tente novamente.');
         }
     };
 
@@ -144,6 +149,17 @@ export const useSkinStore = () => {
         fetchSkins();
     };
 
+    // Clear error message after a timeout
+    useEffect(() => {
+        if (errorMessage) {
+            const timer = setTimeout(() => {
+                setErrorMessage('');
+            }, 5000); // Clear message after 5 seconds
+
+            return () => clearTimeout(timer);
+        }
+    }, [errorMessage]);
+
     return {
         searchTerm,
         setSearchTerm,
@@ -188,5 +204,6 @@ export const useSkinStore = () => {
         resetFilters,
         loading,
         setLoading,
+        errorMessage,
     };
 };
