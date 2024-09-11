@@ -5,7 +5,6 @@ import {
   Box,
   Input,
   SimpleGrid,
-  Card,
   Text,
   Stack,
   Select,
@@ -23,9 +22,10 @@ import {
   Image,
   ImageProps,
 } from '@chakra-ui/react';
-import { FaSun, FaMoon, FaFilter, FaEdit, FaSearch } from "react-icons/fa";
+import { FaEdit, FaSearch } from "react-icons/fa";
 import { PiBroomFill } from "react-icons/pi";
 import { IoIosAddCircle } from "react-icons/io";
+import { AiFillDelete } from "react-icons/ai";
 import { motion, MotionProps } from 'framer-motion';
 
 interface Skin {
@@ -52,8 +52,18 @@ export default function Home() {
   const [filteredSkins, setFilteredSkins] = useState<Skin[]>([]);
   const [showFilters, setShowFilters] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
   const [selectedSkin, setSelectedSkin] = useState<Skin | null>(null);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState<boolean>(false);
+  const [skinToDelete, setSkinToDelete] = useState<Skin | null>(null);
+  // Local state for modal inputs
+  const [modalName, setModalName] = useState<string>('');
+  const [modalImage, setModalImage] = useState<string>('');
+  const [modalPrice, setModalPrice] = useState<number>(0);
+  const [modalFloat, setModalFloat] = useState<number>(0);
+  const [modalCategory, setModalCategory] = useState<string>('');
 
+  // Função para buscar skins
   const fetchSkins = async () => {
     try {
       const response = await axios.get('http://localhost:4000/skin');
@@ -63,6 +73,46 @@ export default function Home() {
     }
   };
 
+  // Função para criar skin
+  const createSkin = async () => {
+    const newSkin = {
+      name: modalName,
+      image: modalImage,
+      price: modalPrice,
+      float: modalFloat,
+      category: modalCategory,
+    };
+
+    try {
+      await axios.post('http://localhost:4000/skin', newSkin);
+      fetchSkins();
+      handleCloseCreateModal();
+    } catch (error) {
+      console.error('Erro ao criar skin:', error);
+    }
+  };
+
+  // Função para atualizar skin
+  const updateSkin = async (skin: Skin) => {
+    try {
+      const response = await axios.put(`http://localhost:4000/skin/${skin.id}`, skin);
+      fetchSkins();
+    } catch (error) {
+      console.error('Erro ao atualizar skin:', error);
+    }
+  };
+
+  // Função para deletar skin
+  const deleteSkin = async (skin: Skin) => {
+    try {
+      await axios.delete(`http://localhost:4000/skin/${skin.id}`);
+      fetchSkins();
+    } catch (error) {
+      console.error('Erro ao deletar skin:', error);
+    }
+  };
+
+  // Buscar skins ao abrir a pagina
   useEffect(() => {
     fetchSkins();
   }, []);
@@ -87,23 +137,84 @@ export default function Home() {
     setFilteredSkins(filtered);
   }, [searchTerm, floatFilter, priceFilter, categoryFilter, sortOrder]);
 
-  const handleEditClick = (skin: Skin) => {
+  // Botão de pesquisar
+  const handleSearchClick = () => {
+    fetchSkins();
+  };
+
+   // Modal para editar skin
+   const handleEditClick = (skin: Skin) => {
     setSelectedSkin(skin);
+    setModalName(skin.name);
+    setModalImage(skin.image);
+    setModalPrice(skin.price);
+    setModalFloat(skin.float);
+    setModalCategory(skin.category);
     setIsModalOpen(true);
   };
 
+  // Fechar modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedSkin(null);
   };
 
+  // Salvar as alterações
+  const handleSave = () => {
+    if (selectedSkin) {
+      const updatedSkin = {
+        ...selectedSkin,
+        name: modalName,
+        image: modalImage,
+        price: modalPrice,
+        float: modalFloat,
+        category: modalCategory,
+      };
+      updateSkin(updatedSkin);
+      handleCloseModal();
+    }
+  };
+
+  // Abrir modal de criação
+  const handleOpenCreateModal = () => {
+    setModalName('');
+    setModalImage('');
+    setModalPrice(0);
+    setModalFloat(0);
+    setModalCategory('');
+    setIsCreateModalOpen(true);
+  };
+
+  // Fechar modal de criação
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+  };
+
+  // Botão de deletar skin
+  const handleDeleteClick = (skin: Skin) => {
+    setSkinToDelete(skin);
+    setIsConfirmDeleteOpen(true);
+  };
+
+  // Confirmar a exclusão de skin
+  const handleConfirmDelete = () => {
+    if (skinToDelete) {
+      deleteSkin(skinToDelete);
+      setSkinToDelete(null);
+    }
+    setIsConfirmDeleteOpen(false);
+  };
+
   return (
-    <Box p={5} bg="#111111">
+    <Box p={5} bg="#111111" minH="100vh">
+      {/* Título */}
       <Flex justifyContent="space-between" alignItems="center" mb={4}>
         <Heading as="h2" size="lg" textAlign="center">
           CSkinStore
         </Heading>
       </Flex>
+
+      {/* Filtros */}
       <Flex 
         mb={4} 
         justifyContent="center" 
@@ -111,16 +222,16 @@ export default function Home() {
         border="1px solid rgba(67, 67, 67, 0.5)" 
         borderRadius="md" 
         p={4} 
-        flexDirection={["column", "row"]} // Muda para coluna em telas pequenas
-        mx={["0", "20"]} // Margem horizontal responsiva
+        flexDirection={["column", "row"]}
+        mx={["0", "20"]}
       >
         <Select
           placeholder="Todos os Itens"
           onChange={(e) => setFloatFilter(e.target.value)}
-          width={["100%", "auto"]} // Largura 100% em telas pequenas
+          width={["100%", "auto"]}
           height="30px"
-          mr={2}
-          mb={[2, 0]} // Margem inferior em telas pequenas
+          mr={[2, 2]}
+          mb={[2, 0]}
         >
           <option value="0.1">0.1</option>
           <option value="0.5">0.5</option>
@@ -132,7 +243,7 @@ export default function Home() {
           onChange={(e) => setFloatFilter(e.target.value)}
           width={["100%", "auto"]}
           height="30px"
-          mr={2}
+          mr={[2, 2]}
           mb={[2, 0]}
         >
           <option value="0.1">0.1</option>
@@ -145,13 +256,14 @@ export default function Home() {
           width={["100%", "auto"]}
           height="30px"
           mb={[2, 0]}
+          mr={[2, 0]}
         />
         <Text>━</Text>
         <Input
           placeholder="ate R$00,00"
           width={["100%", "auto"]}
           height="30px"
-          mr={2}
+          mr={[2, 2]}
           mb={[2, 0]}
         />
 
@@ -161,18 +273,20 @@ export default function Home() {
           width={["100%", "auto"]}
           height="30px"
           onChange={(e) => setSearchTerm(e.target.value)}
-          mr={2}
+          mr={[2, 2]}
           mb={[2, 0]}
         />
 
         <Button
-          mr={2}
+          mr={[2, 2]}
+          mb={[2, 0]}
           display="flex" 
           alignItems="center" 
           justifyContent="center" 
           title='Pesquisar'
           height="30px"
-          width={["100%", "auto"]} // Largura 100% em telas pequenas
+          width={["100%", "auto"]}
+          onClick={handleSearchClick}
         >
           <FaSearch />
         </Button>
@@ -182,7 +296,7 @@ export default function Home() {
           onChange={(e) => setFloatFilter(e.target.value)}
           width={["100%", "auto"]}
           height="30px"
-          mr={2}
+          mr={[2, 2]}
           mb={[2, 0]}
         >
           <option value="0.1">0.1</option>
@@ -191,13 +305,15 @@ export default function Home() {
         </Select>
 
         <Button
-          mr={2}
+          mr={[2, 2]}
           display="flex" 
           alignItems="center" 
           justifyContent="center" 
           title='Adicionar'
           height="30px"
           width={["100%", "auto"]}
+          mb={[2, 0]}
+          onClick={handleOpenCreateModal}
         >
           <IoIosAddCircle />
         </Button>
@@ -210,10 +326,12 @@ export default function Home() {
           title='Limpar Filtros'
           height="30px"
           width={["100%", "auto"]}
+          mr={[2, 2]}
         >
           <PiBroomFill />
         </Button>
       </Flex>
+
       <Collapse in={showFilters}>
         <Select
           placeholder="Filtrar por float"
@@ -255,9 +373,15 @@ export default function Home() {
         </Select>
       </Collapse>
 
-      <SimpleGrid  spacing={3} mx={["0", "40"]} justifyContent="center" columns={[1, 2, 3, 4, 5, 6, 7]}>
+      {/* Grid de skins filtrados */}
+      <SimpleGrid 
+        spacing={3} 
+        mx={["0", "40"]} 
+        justifyItems="center"
+        minChildWidth="216px" // Define a largura mínima de cada item
+      >
         {filteredSkins.map((skin) => (
-          <Card 
+          <Box 
             key={skin.id} 
             width="216px" 
             height="357px" 
@@ -274,7 +398,13 @@ export default function Home() {
                 justifyContent="center" 
                 borderRadius="md"
               >
-                <Text fontSize="12px" color="white" fontWeight={700}>{skin.name}</Text>
+                <Flex justifyContent="space-between" alignItems="center">
+                  <Text fontSize="12px" color="white" fontWeight={700}>{skin.name}</Text>
+                  <AiFillDelete 
+                    color='red'
+                    onClick={() => handleDeleteClick(skin)}
+                  />
+                </Flex>
                 <Flex alignItems="center" mt={1}>
                   <Text color="orange" fontSize="12px" fontWeight={700}>• </Text>
                   <Text fontSize="10px" color="white" ml={1}>{skin.category}</Text>
@@ -311,37 +441,121 @@ export default function Home() {
                 </Button>
               </Flex>
             </Stack>
-          </Card>
+          </Box>
         ))}
       </SimpleGrid>
+
+      {/* Modal de criação de skin */}
+      <Modal isOpen={isCreateModalOpen} onClose={handleCloseCreateModal}>
+        <ModalOverlay />
+        <ModalContent bg="#111111">
+          <ModalHeader textAlign="center">Criar Nova Skin</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Box>
+              <Text>Nome:</Text>
+              <Input 
+                value={modalName} 
+                onChange={(e) => setModalName(e.target.value)} 
+              />
+              <Text>Imagem:</Text>
+              <Input 
+                value={modalImage} 
+                onChange={(e) => setModalImage(e.target.value)} 
+              />
+              <Text>Preço:</Text>
+              <Input 
+                value={modalPrice} 
+                type="number" 
+                onChange={(e) => setModalPrice(Number(e.target.value))} 
+              />
+              <Text>Float:</Text>
+              <Input 
+                value={modalFloat} 
+                type="number" 
+                onChange={(e) => setModalFloat(Number(e.target.value))} 
+              />
+              <Text>Categoria:</Text>
+              <Input 
+                value={modalCategory} 
+                onChange={(e) => setModalCategory(e.target.value)} 
+              />
+            </Box>
+          </ModalBody>
+          <ModalFooter>
+            <Button bg="orange" mr={3} onClick={createSkin} _hover={{ bg: '#CD7F32' }}>
+              Criar
+            </Button>
+            <Button bg="#333" variant="ghost" onClick={handleCloseCreateModal}>Cancelar</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
 
       {/* Modal para editar skin */}
       <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Editar Skin</ModalHeader>
+        <ModalContent bg="#111111">
+          <ModalHeader textAlign="center">Editar Skin</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             {selectedSkin && (
               <Box>
                 <Text>Nome:</Text>
-                <Input value={selectedSkin.name} />
+                <Input 
+                  value={modalName} 
+                  onChange={(e) => setModalName(e.target.value)} 
+                />
                 <Text>Imagem:</Text>
-                <Input value={selectedSkin.image} />
+                <Input 
+                  value={modalImage} 
+                  onChange={(e) => setModalImage(e.target.value)} 
+                />
                 <Text>Preço:</Text>
-                <Input value={selectedSkin.price} type="number" />
+                <Input 
+                  value={modalPrice} 
+                  type="number" 
+                  onChange={(e) => setModalPrice(Number(e.target.value))} 
+                />
                 <Text>Float:</Text>
-                <Input value={selectedSkin.float} type="number" />
+                <Input 
+                  value={modalFloat} 
+                  type="number" 
+                  onChange={(e) => setModalFloat(Number(e.target.value))} 
+                />
                 <Text>Categoria:</Text>
-                <Input value={selectedSkin.category} />
+                <Input 
+                  value={modalCategory} 
+                  onChange={(e) => setModalCategory(e.target.value)} 
+                />
               </Box>
             )}
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleCloseModal}>
+            <Button bg="orange" mr={3} onClick={handleSave} _hover={{ bg: '#CD7F32' }}>
               Salvar
             </Button>
-            <Button variant="ghost" onClick={handleCloseModal}>Cancelar</Button>
+            <Button bg="#333" variant="ghost" onClick={handleCloseModal}>Cancelar</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Modal de confirmação de deletar skin */}
+      <Modal isOpen={isConfirmDeleteOpen} onClose={() => setIsConfirmDeleteOpen(false)}>
+        <ModalOverlay />
+        <ModalContent bg="#111111">
+          <ModalHeader textAlign="center">Deletar Skin</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Flex alignItems="center">
+              <Text color="white">Tem certeza que deseja deletar a skin </Text>
+              <Text color="orange" fontWeight={700} ml={1}>{skinToDelete?.name}?</Text>
+            </Flex>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="red" mr={3} onClick={handleConfirmDelete}>
+              Deletar
+            </Button>
+            <Button variant="ghost" onClick={() => setIsConfirmDeleteOpen(false)}>Cancelar</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
