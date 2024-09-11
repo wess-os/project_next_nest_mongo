@@ -6,6 +6,7 @@ import SkinList from './components/SkinList';
 import ModalForm from './components/ModalForm';
 import DeleteConfirmationModal from './components/DeleteConfirmationModal';
 import Loader from './components/Loader';
+import router from 'next/router';
 
 interface Skin {
   id: number;
@@ -141,6 +142,8 @@ export default function Home() {
             as="h2" 
             size="lg" 
             textAlign="center"
+            cursor="pointer"
+            onClick={() => window.location.reload()}
           >
             CSkinStore
           </Heading>
