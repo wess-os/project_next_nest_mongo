@@ -1,4 +1,4 @@
-## Skin Shop Project\
+## Skin Shop Project
 
 This project is a list of skins, you can edit, add or delete your skins.
 
