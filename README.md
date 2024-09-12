@@ -14,7 +14,7 @@ It was made using the following technologies:
 ### How to configure the project
 
 #### Backend:
-1. Configure your .env file, there is already an example in the project where it contains the mongoDb url, you will only need to change the username and password.
+1. First of all, you must add the url of your MongoDB inside docker-compose.yml, I will leave an example of how it should be. (the collection should be called skins)
 2. Build docker:
     ```bash
     docker-compose build
