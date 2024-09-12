@@ -5,4 +5,4 @@ services:
     ports:
       - 4000:4000
     environment:
-      - DATABASE_URL=mongodb+srv://weslloll8:jyLdsvUCNJreKeRe@cluster0.ixmag.mongodb.net/skins?retryWrites=true&w=majority&appName=Cluster0
+      - DATABASE_URL=mongodb+srv://<username>:<password>@cluster0.ixmag.mongodb.net/skins?retryWrites=true&w=majority&appName=Cluster0
