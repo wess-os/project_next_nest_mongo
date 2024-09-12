@@ -28,7 +28,7 @@ const ModalForm: React.FC<ModalFormProps> = ({ isOpen, onClose, modalName, setMo
                     <Text>Nome:</Text>
                     <Input value={modalName} onChange={(e) => setModalName(e.target.value)} />
                     <Text>Imagem:</Text>
-                    <Input value={modalImage} onChange={(e) => setModalImage(e.target.value)} />
+                    <Input value={modalImage} onChange={(e) => setModalImage(e.target.value)} placeholder='aqui deve conter uma url de uma imagem'/>
                     <Text>Preço:</Text>
                     <Input value={modalPrice} type="number" onChange={(e) => setModalPrice(Number(e.target.value))} />
                     <Text>Float:</Text>
