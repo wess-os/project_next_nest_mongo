@@ -1,4 +1,4 @@
-import { SimpleGrid } from '@chakra-ui/react';
+import { SimpleGrid, Text } from '@chakra-ui/react';
 import SkinCard from './SkinCard';
 
 interface Skin {
@@ -24,14 +24,18 @@ const SkinList: React.FC<SkinListProps> = ({ filteredSkins, handleEditClick, han
             justifyItems="center" 
             minChildWidth="216px"
         >
-            {filteredSkins.map((skin) => (
-                <SkinCard 
-                    key={skin.id} 
-                    skin={skin} 
-                    handleEditClick={handleEditClick} 
-                    handleDeleteClick={handleDeleteClick} 
-                />
-            ))}
+            {filteredSkins.length > 0 ? (
+                filteredSkins.map((skin) => (
+                    <SkinCard 
+                        key={skin.id} 
+                        skin={skin} 
+                        handleEditClick={handleEditClick} 
+                        handleDeleteClick={handleDeleteClick} 
+                    />
+                ))
+            ) : (
+                <Text>Nenhuma skin cadastrada.</Text>
+            )}
         </SimpleGrid>
     );
 };
