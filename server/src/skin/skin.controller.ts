@@ -9,7 +9,6 @@ export class SkinController {
     @Post() // Method to create an item
     async create(@Body() data: Item): Promise<Item> {
         // Checks if all required fields are present
-        console.log(data);
         const requiredFields = ['name', 'image', 'category', 'float', 'price'];
         const missingFields = requiredFields.filter(field => !data[field]);
 

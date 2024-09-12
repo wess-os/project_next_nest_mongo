@@ -46,7 +46,6 @@ export const useSkinStore = () => {
             setCategories(uniqueCategories);
             setLoading(false);
         } catch (error) {
-            console.error('Erro ao buscar skins:', error);
             setErrorMessage('Erro ao buscar skins. Tente novamente mais tarde.');
         }
     };
@@ -62,7 +61,6 @@ export const useSkinStore = () => {
             handleCloseCreateModal();
             setLoading(false);
         } catch (error) {
-            console.error('Erro ao criar skin:', error);
             setErrorMessage('Erro ao criar skin. Verifique os dados e tente novamente.');
         }
     };
@@ -75,7 +73,6 @@ export const useSkinStore = () => {
             fetchSkins();
             setLoading(false);
         } catch (error) {
-            console.error('Erro ao atualizar skin:', error);
             setErrorMessage('Erro ao atualizar skin. Tente novamente.');
         }
     };
@@ -88,7 +85,6 @@ export const useSkinStore = () => {
             fetchSkins();
             setLoading(false);
         } catch (error) {
-            console.error('Erro ao deletar skin:', error);
             setErrorMessage('Erro ao deletar skin. Tente novamente.');
         }
     };
