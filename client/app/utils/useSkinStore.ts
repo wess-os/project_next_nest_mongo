@@ -37,7 +37,7 @@ export const useSkinStore = () => {
     // Function to search skins
     const fetchSkins = async () => {
         try {
-            const response = await axios.get<Skin[]>('http://localhost:4000/skin');
+            const response = await axios.get<Skin[]>(`${process.env.NEXT_PUBLIC_API_URL}skin`);
 
             setFilteredSkins(response.data);
             setOriginalSkins(response.data);
@@ -55,7 +55,7 @@ export const useSkinStore = () => {
         const newSkin = { name: modalName, image: modalImage, price: modalPrice, float: modalFloat, category: modalCategory };
 
         try {
-            await axios.post('http://localhost:4000/skin', newSkin);
+            await axios.post(`${process.env.NEXT_PUBLIC_API_URL}skin`, newSkin);
 
             fetchSkins();
             handleCloseCreateModal();
@@ -68,7 +68,7 @@ export const useSkinStore = () => {
     // Function to update skin
     const updateSkin = async (skin: Skin) => {
         try {
-            await axios.put(`http://localhost:4000/skin/${skin.id}`, skin);
+            await axios.put(`${process.env.NEXT_PUBLIC_API_URL}skin/${skin.id}`, skin);
 
             fetchSkins();
             setLoading(false);
@@ -81,7 +81,7 @@ export const useSkinStore = () => {
     const deleteSkin = async (skin: Skin) => {
         try {
 
-            await axios.delete(`http://localhost:4000/skin/${skin.id}`);
+            await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}skin/${skin.id}`);
             fetchSkins();
             setLoading(false);
         } catch (error) {
