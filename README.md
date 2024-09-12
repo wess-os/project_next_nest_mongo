@@ -18,12 +18,12 @@ It was made using the following technologies:
 
 2. Build docker:
     ```bash
-    docker-compose build
+    docker compose build
     ```
 
 3. Run docker:
     ```bash
-    docker-compose up
+    docker compose up
     ```
 
 4. Available routes:
@@ -42,25 +42,23 @@ obs: If you have any problems with CORS, remember to change the origin route of 
 
 2. Change the API URL in the .env file to the one you configured in the backend.
 
-3. Run the tests (optional):
-    ```bash
-    npm run test
-    ```
-
-4. Run the development server:
+3. Run the development server:
     ```bash
     npm run dev
     ```
 
-5. The following fields must be filled in to add a skin:
+4. The following fields must be filled in to add a skin:
     - name (cannot be empty)
     - image (cannot be empty)
     - price (value cannot be 0)
     - float (value cannot be 0)
     - category (cannot be empty)
     
-6. When adding a skin image to the frontend,
+5. When adding a skin image to the frontend,
 remember that the image needs to be the url of an image, not the file path, for example:
     ```bash
     https://cs.money/img/main/slider-items/cs/5.png
     ```
+
+#### Tests:
+I had some problems with the testing part and ended up not being able to implement it in time.
