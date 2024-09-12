@@ -34,7 +34,7 @@ const SkinList: React.FC<SkinListProps> = ({ filteredSkins, handleEditClick, han
                     />
                 ))
             ) : (
-                <Text>Nenhuma skin cadastrada.</Text>
+                <Text>Nenhuma skin encontrada.</Text>
             )}
         </SimpleGrid>
     );
